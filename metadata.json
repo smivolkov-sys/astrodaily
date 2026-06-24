@@ -1,0 +1,6 @@
+{
+  "name": "astrodaily.ge",
+  "description": "ავტომატიზებული ასტროლოგიური პლატფორმა: ყოველდღიური ჰოროსკოპი, ნატალური ბარათი, ასტრო პროგნოზები და თავსებადობა",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
