@@ -12,19 +12,29 @@ app.get('/api/forecast', async (req, res) => {
   if (!sign || !type || !period) return res.status(400).json({ error: 'Missing parameters' });
 
   try {
+    // Читаем ТОЛЬКО из Redis
     const key = `forecast:${type}:${period}`;
     const data: any = await redis.get(key);
     
-    if (!data) {
-      return res.status(404).json({ error: "No data found" });
-    }
+    if (!data) return res.status(404).json({ error: "Forecast not found" });
     
-    const allRecords = typeof data === 'string' ? JSON.parse(data) : data;
-    const record = Array.isArray(allRecords) ? allRecords.find((r: any) => r.sign === sign) : null;
+    const records = typeof data === 'string' ? JSON.parse(data) : data;
+    const record = Array.isArray(records) ? records.find((r: any) => r.sign === sign) : null;
     
     return record ? res.json(record) : res.status(404).json({ error: "Sign not found" });
   } catch (err) {
     return res.status(500).json({ error: 'Server error' });
+  }
+});
+
+// Только этот метод может менять данные
+app.post('/api/automate-forecasts', async (req, res) => {
+  const { type, period, records } = req.body;
+  try {
+    await redis.set(`forecast:${type}:${period}`, JSON.stringify(records));
+    return res.json({ status: 'success' });
+  } catch (err) {
+    return res.status(500).json({ error: 'Save error' });
   }
 });
 
