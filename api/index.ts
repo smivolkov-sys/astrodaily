@@ -18,7 +18,13 @@ app.get('/api/forecast', async (req, res) => {
     
     if (!data) {
       return res.status(404).json({ error: "Data not found" });
-    }
+   // Вставьте этот код прямо перед строкой const data = ...
+if (req.query.seed === 'true') {
+  await redis.set(`forecast:daily:2026-06-29`, JSON.stringify([
+    { sign: "Aries", text: "Сегодня отличный день для новых начинаний!" },
+    { sign: "Taurus", text: "Вас ждет финансовый успех и стабильность." }
+  ]));
+} }
 
     // Возвращаем результат сразу
     const records = typeof data === 'string' ? JSON.parse(data) : data;
