@@ -401,3 +401,4 @@ async function initServer() {
 }
 
 initServer().catch(console.error);
+export default app;
