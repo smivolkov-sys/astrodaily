@@ -13,20 +13,22 @@ app.get('/api/forecast', async (req, res) => {
   if (!sign || !type || !period) return res.status(400).json({ error: "Missing params" });
 
   try {
-    // Получаем данные ТОЛЬКО из Redis
+    // 1. Если пришел запрос с seed=true, принудительно записываем данные
+    if (req.query.seed === 'true') {
+      await redis.set(`forecast:${type}:${period}`, JSON.stringify([
+        { sign: "Aries", text: "Сегодня отличный день для новых начинаний!" },
+        { sign: "Taurus", text: "Вас ждет финансовый успех и стабильность." }
+      ]));
+    }
+
+    // 2. Получаем данные из Redis
     const data = await redis.get(`forecast:${type}:${period}`);
     
     if (!data) {
       return res.status(404).json({ error: "Data not found" });
-   // Вставьте этот код прямо перед строкой const data = ...
-if (req.query.seed === 'true') {
-  await redis.set(`forecast:daily:2026-06-29`, JSON.stringify([
-    { sign: "Aries", text: "Сегодня отличный день для новых начинаний!" },
-    { sign: "Taurus", text: "Вас ждет финансовый успех и стабильность." }
-  ]));
-} }
+    }
 
-    // Возвращаем результат сразу
+    // 3. Возвращаем результат
     const records = typeof data === 'string' ? JSON.parse(data) : data;
     const record = Array.isArray(records) ? records.find((r: any) => r.sign === sign) : null;
     
